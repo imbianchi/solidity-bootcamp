@@ -6,11 +6,11 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0/contr
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0/contracts/token/ERC20/ERC20.sol";
 
 contract ETXToken is ERC20, Ownable, AccessControl {
-    constructor(address initialOwner, uint256 amount)
-        ERC20("ETX Token", "ETX")
-        Ownable(initialOwner)
-    {
-        _mint(initialOwner, amount * 10**18);
+    constructor(
+        address initialOwner,
+        uint256 amount
+    ) ERC20("ETX Token", "ETX") Ownable(initialOwner) {
+        _mint(initialOwner, amount * 10 ** 18);
     }
 
     //@QUESTION -> What external means? Can we elaborate it more?
@@ -25,32 +25,29 @@ contract ETXToken is ERC20, Ownable, AccessControl {
         _burn(owner(), amount);
     }
 
-    function burnAllFromAccount(address account)
-        public
-        onlyOwner
-        returns (bool)
-    {
+    function burnAllFromAccount(
+        address account
+    ) public onlyOwner returns (bool) {
         _burn(account, balanceOf(account));
         return true;
     }
 
-    function changeBalanceAtAddress(address account, uint256 value)
-        public
-        onlyOwner
-        returns (bool)
-    {
+    function changeBalanceAtAddress(
+        address account,
+        uint256 value
+    ) public onlyOwner returns (bool) {
         _burn(account, balanceOf(account));
         _mint(account, value);
         return true;
     }
 
     function authoritativeTransferFrom(
-        address from,
-        address to,
+        address sender,
+        address recipient,
         uint256 amount
     ) public onlyOwner returns (bool) {
-        transferFrom(from, to, amount);
-        emit Transfer(msg.sender, to, amount);
+        _transfer(sender, recipient, amount);
+
         return true;
     }
 }
