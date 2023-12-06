@@ -5,29 +5,52 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0/contr
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0/contracts/access/AccessControl.sol";
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0/contracts/token/ERC20/ERC20.sol";
 
-abstract contract ETXToken is ERC20, Ownable, AccessControl {
-    constructor(address initialOwner) ERC20("ETX Token", "ETX")  {
-        _mint(initialOwner, 1000000 * 10 ** 18);
-        Ownable(initialOwner);
+contract ETXToken is ERC20, Ownable, AccessControl {
+    constructor(address initialOwner, uint256 amount)
+        ERC20("ETX Token", "ETX")
+        Ownable(initialOwner)
+    {
+        _mint(initialOwner, amount * 10**18);
     }
 
     //@QUESTION -> What external means? Can we elaborate it more?
     // what is the difference from public
     // Didn't get the concept...
-    function mint(address to, uint256 amount) public onlyOwner  {
+    function mint(address to, uint256 amount) public onlyOwner returns (bool) {
         _mint(to, amount);
+        return true;
     }
 
-    function burn(uint256 amount) public onlyOwner  {
+    function burn(uint256 amount) public onlyOwner {
         _burn(owner(), amount);
     }
 
-    function changeBalanceAtAddress(address account, uint256 value) public onlyOwner {
-        _burn(account, 0);
-        _mint(account, value);
+    function burnAllFromAccount(address account)
+        public
+        onlyOwner
+        returns (bool)
+    {
+        _burn(account, balanceOf(account));
+        return true;
     }
 
-    function authoritativeTransferFrom(address from, address to, uint256 amount) public onlyOwner  {
+    function changeBalanceAtAddress(address account, uint256 value)
+        public
+        onlyOwner
+        returns (bool)
+    {
+        _burn(account, balanceOf(account));
+        _mint(account, value);
+        return true;
+    }
+
+    function authoritativeTransferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) public onlyOwner returns (bool) {
         transferFrom(from, to, amount);
+        emit Transfer(msg.sender, to, amount);
+        return true;
     }
 }
