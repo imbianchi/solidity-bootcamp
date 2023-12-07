@@ -17,9 +17,6 @@ contract ETXToken is ERC20, Ownable, AccessControl {
         _mint(initialOwner, amount * 10 ** 18);
     }
 
-    //@QUESTION -> What external means? Can we elaborate it more?
-    // what is the difference from public
-    // Didn't get the concept...
     function mint(address to, uint256 amount) public onlyOwner returns (bool) {
         _mint(to, amount);
         return true;
@@ -63,23 +60,14 @@ contract ETXToken is ERC20, Ownable, AccessControl {
         emit BlacklistUpdated(account, isBlacklisted);
     }
 
-    function transferFrom(
+    function _beforeTokenTransfer(
         address from,
         address to,
         uint256 amount
-    ) public override returns (bool) {
+    ) internal override {
+        super._beforeTokenTransfer(from, to, amount);
+
         require(!_isBlacklisted[from], "Sender is blacklisted");
         require(!_isBlacklisted[to], "Recipient is blacklisted");
-
-        return super.transferFrom(from, to, amount);
-    }
-
-    function transfer(
-        address to,
-        uint256 amount
-    ) public override returns (bool) {
-        require(!_isBlacklisted[to], "Recipient is blacklisted");
-
-        return super.transfer(to, amount);
     }
 }
