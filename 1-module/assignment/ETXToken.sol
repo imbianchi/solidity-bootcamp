@@ -6,6 +6,10 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0/contr
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0/contracts/token/ERC20/ERC20.sol";
 
 contract ETXToken is ERC20, Ownable, AccessControl {
+    mapping(address => bool) private _isBlacklisted;
+
+    event BlacklistUpdated(address indexed account, bool isBlacklisted);
+
     constructor(
         address initialOwner,
         uint256 amount
@@ -49,5 +53,33 @@ contract ETXToken is ERC20, Ownable, AccessControl {
         _transfer(sender, recipient, amount);
 
         return true;
+    }
+
+    function updateBlacklist(
+        address account,
+        bool isBlacklisted
+    ) external onlyOwner {
+        _isBlacklisted[account] = isBlacklisted;
+        emit BlacklistUpdated(account, isBlacklisted);
+    }
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) public override returns (bool) {
+        require(!_isBlacklisted[from], "Sender is blacklisted");
+        require(!_isBlacklisted[to], "Recipient is blacklisted");
+
+        return super.transferFrom(from, to, amount);
+    }
+
+    function transfer(
+        address to,
+        uint256 amount
+    ) public override returns (bool) {
+        require(!_isBlacklisted[to], "Recipient is blacklisted");
+
+        return super.transfer(to, amount);
     }
 }
