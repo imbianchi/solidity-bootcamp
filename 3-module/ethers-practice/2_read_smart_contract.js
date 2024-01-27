@@ -22,6 +22,10 @@ const main = async () => {
     console.log(`\Name: ${name}\n`);
     console.log(`\nSymbol: ${symbol}\n`);
     console.log(`\nTotal Supply: ${totalSupply}\n`);
+
+    const balance = contract.balanceOf('');
+    console.log(`Balance Returned: ${balance}\n`);
+    console.log(`Balance Formatted: ${ethers.utils.formatEther(balance)}\n`);
 };
 
 main();
